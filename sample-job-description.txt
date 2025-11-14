@@ -1,0 +1,110 @@
+SENIOR SOFTWARE ENGINEER
+
+Company: CloudTech Innovations
+Location: Remote (US-based)
+Employment Type: Full-time
+Salary Range: $120,000 - $160,000
+
+ABOUT THE COMPANY
+CloudTech Innovations is a rapidly growing SaaS company specializing in cloud-native applications and enterprise solutions. We're revolutionizing how businesses manage their infrastructure and data in the cloud.
+
+JOB DESCRIPTION
+We are seeking an experienced Senior Software Engineer to join our engineering team. You will be responsible for designing, developing, and maintaining scalable microservices-based applications that serve millions of users worldwide.
+
+REQUIRED QUALIFICATIONS
+• Bachelor's degree in Computer Science or related field, or equivalent experience
+• 5+ years of professional software development experience
+• Strong proficiency in Java and Spring Boot framework
+• Experience with microservices architecture and RESTful API design
+• Solid understanding of cloud platforms, preferably AWS
+• Experience with containerization using Docker and orchestration with Kubernetes
+• Proficiency in SQL and NoSQL databases (MySQL, PostgreSQL, MongoDB)
+• Strong knowledge of CI/CD pipelines and DevOps practices
+• Experience with version control systems, particularly Git
+• Excellent problem-solving and debugging skills
+• Strong communication and collaboration abilities
+
+PREFERRED QUALIFICATIONS
+• Master's degree in Computer Science or related field
+• Experience with React or Angular for frontend development
+• Knowledge of message queuing systems (RabbitMQ, Kafka)
+• Experience with GraphQL
+• Familiarity with serverless architectures (AWS Lambda)
+• Experience with monitoring and logging tools (ELK Stack, Prometheus, Grafana)
+• Knowledge of security best practices and OWASP guidelines
+• Experience with Redis for caching
+• Familiarity with Terraform or similar Infrastructure as Code tools
+• AWS certifications (Solutions Architect, Developer)
+• Experience in agile/scrum development environments
+• Open source contributions
+
+KEY RESPONSIBILITIES
+• Design and develop scalable, high-performance microservices using Spring Boot
+• Architect and implement RESTful APIs and GraphQL endpoints
+• Write clean, maintainable, and well-documented code
+• Collaborate with cross-functional teams to define and deliver new features
+• Mentor junior developers and conduct code reviews
+• Optimize application performance and troubleshoot production issues
+• Implement automated testing strategies and maintain code quality standards
+• Participate in system design discussions and architectural decisions
+• Deploy and manage applications on AWS cloud infrastructure
+• Contribute to technical documentation and best practices
+• Stay updated with emerging technologies and industry trends
+
+TECHNICAL STACK
+Backend: Java 17, Spring Boot 3.x, Hibernate, Maven/Gradle
+Frontend: React 18, TypeScript, Redux
+Databases: PostgreSQL, MongoDB, Redis
+Cloud: AWS (EC2, S3, Lambda, RDS, CloudWatch)
+DevOps: Docker, Kubernetes, Jenkins, GitHub Actions
+Messaging: Apache Kafka, RabbitMQ
+Monitoring: Prometheus, Grafana, ELK Stack
+Version Control: Git, GitHub
+
+WHAT WE OFFER
+• Competitive salary and equity package
+• Comprehensive health, dental, and vision insurance
+• 401(k) with company match
+• Flexible work hours and remote-first culture
+• Professional development budget ($3,000/year)
+• Latest MacBook Pro and equipment
+• Unlimited PTO policy
+• Team building activities and annual company retreats
+• Collaborative and innovative work environment
+• Opportunities for career growth and leadership roles
+
+DEVELOPMENT PROCESS
+• Agile methodology with 2-week sprints
+• Daily stand-ups and sprint retrospectives
+• Pair programming and code review practices
+• Test-driven development (TDD) approach
+• Continuous integration and deployment
+• Emphasis on code quality and best practices
+
+TEAM STRUCTURE
+You will be joining our Core Platform team consisting of 8 engineers working on:
+• API Gateway and authentication services
+• Data processing pipelines
+• Integration with third-party services
+• Performance optimization and scalability
+• Infrastructure automation
+
+INTERVIEW PROCESS
+1. Initial phone screening (30 minutes)
+2. Technical assessment (coding challenge)
+3. Technical interview with engineering team (1 hour)
+4. System design interview (1 hour)
+5. Behavioral interview with hiring manager (45 minutes)
+6. Final interview with CTO (30 minutes)
+
+HOW TO APPLY
+Please submit your resume along with:
+• GitHub profile or portfolio of your work
+• Brief cover letter explaining your interest
+• Links to any open-source contributions (optional)
+
+EQUAL OPPORTUNITY EMPLOYER
+CloudTech Innovations is committed to creating a diverse and inclusive workplace. We are an equal opportunity employer and welcome applications from all qualified candidates regardless of race, color, religion, sex, sexual orientation, gender identity, national origin, disability, or veteran status.
+
+KEYWORDS
+Java Developer, Spring Boot Engineer, Microservices, Cloud Computing, AWS, Backend Development, REST API, Kubernetes, Docker, Senior Developer, Software Architect, Full Stack Development, DevOps, Enterprise Software, SaaS, Scalable Systems, Distributed Systems, Agile Development

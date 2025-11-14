@@ -1,0 +1,246 @@
+package com.resume.builder.service;
+
+import com.resume.builder.dto.OptimizationSuggestionDTO;
+import com.resume.builder.model.JobDescription;
+import com.resume.builder.model.Resume;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+@Service
+@Slf4j
+@RequiredArgsConstructor
+public class OptimizationService {
+
+    private final JDAnalyzerService jdAnalyzerService;
+
+    public Resume optimizeResume(Resume resume, JobDescription jd) {
+        Resume optimized = new Resume();
+        
+        // Copy basic info
+        optimized.setId(resume.getId());
+        optimized.setName(resume.getName());
+        optimized.setEmail(resume.getEmail());
+        optimized.setPhone(resume.getPhone());
+        optimized.setLinkedIn(resume.getLinkedIn());
+        optimized.setGithub(resume.getGithub());
+        optimized.setEducation(resume.getEducation());
+        optimized.setTemplate(resume.getTemplate());
+        
+        // Extract JD keywords
+        Set<String> jdKeywords = jdAnalyzerService.extractAllKeywords(jd.getDescription());
+        Set<String> jdSkills = extractSkillsSet(jd.getRequiredSkills());
+        Set<String> resumeSkills = extractSkillsSet(resume.getSkills());
+        
+        // Optimize summary
+        String optimizedSummary = optimizeSummary(resume.getSummary(), jd, jdKeywords);
+        optimized.setSummary(optimizedSummary);
+        
+        // Optimize skills (add missing relevant skills)
+        String optimizedSkills = optimizeSkills(resume.getSkills(), jdSkills);
+        optimized.setSkills(optimizedSkills);
+        
+        // Optimize experience (add relevant keywords)
+        String optimizedExperience = optimizeExperience(resume.getExperience(), jdKeywords, jd);
+        optimized.setExperience(optimizedExperience);
+        
+        // Keep other sections as is
+        optimized.setProjects(resume.getProjects());
+        optimized.setCertifications(resume.getCertifications());
+        
+        return optimized;
+    }
+
+    public OptimizationSuggestionDTO generateOptimizationSuggestions(Resume resume, JobDescription jd) {
+        OptimizationSuggestionDTO suggestions = new OptimizationSuggestionDTO();
+        
+        Set<String> jdKeywords = jdAnalyzerService.extractAllKeywords(jd.getDescription());
+        Set<String> jdSkills = extractSkillsSet(jd.getRequiredSkills());
+        
+        // Generate optimized versions
+        suggestions.setOptimizedSummary(optimizeSummary(resume.getSummary(), jd, jdKeywords));
+        suggestions.setOptimizedSkills(optimizeSkills(resume.getSkills(), jdSkills));
+        suggestions.setOptimizedExperience(optimizeExperience(resume.getExperience(), jdKeywords, jd));
+        
+        // Generate bullet point improvements
+        Map<String, String> bulletImprovements = generateBulletPointImprovements(resume.getExperience());
+        suggestions.setBulletPointImprovements(bulletImprovements);
+        
+        // Count added keywords
+        Set<String> resumeSkills = extractSkillsSet(resume.getSkills());
+        Set<String> addedSkills = new HashSet<>(jdSkills);
+        addedSkills.removeAll(resumeSkills);
+        suggestions.setAddedKeywords(addedSkills.size());
+        
+        return suggestions;
+    }
+
+    private String optimizeSummary(String originalSummary, JobDescription jd, Set<String> jdKeywords) {
+        if (originalSummary == null || originalSummary.isEmpty()) {
+            return generateDefaultSummary(jd);
+        }
+        
+        StringBuilder optimized = new StringBuilder(originalSummary);
+        
+        // Add job title if not present
+        String jobTitle = jd.getJobTitle();
+        if (jobTitle != null && !originalSummary.toLowerCase().contains(jobTitle.toLowerCase())) {
+            optimized.insert(0, "Motivated " + jobTitle + " professional. ");
+        }
+        
+        // Add top 3 missing keywords naturally
+        Set<String> summaryWords = jdAnalyzerService.extractAllKeywords(originalSummary);
+        List<String> missingKeywords = jdKeywords.stream()
+            .filter(kw -> !summaryWords.contains(kw))
+            .limit(3)
+            .collect(Collectors.toList());
+        
+        if (!missingKeywords.isEmpty()) {
+            optimized.append(" Experienced in ").append(String.join(", ", missingKeywords)).append(".");
+        }
+        
+        return optimized.toString();
+    }
+
+    private String generateDefaultSummary(JobDescription jd) {
+        return String.format("Experienced professional seeking %s position. " +
+            "Strong background in relevant technologies and proven track record of delivering results.", 
+            jd.getJobTitle() != null ? jd.getJobTitle() : "the");
+    }
+
+    private String optimizeSkills(String originalSkills, Set<String> jdSkills) {
+        Set<String> currentSkills = extractSkillsSet(originalSkills);
+        Set<String> optimizedSkills = new HashSet<>(currentSkills);
+        
+        // Add missing skills from JD
+        optimizedSkills.addAll(jdSkills);
+        
+        return optimizedSkills.stream()
+            .sorted()
+            .collect(Collectors.joining(", "));
+    }
+
+    private String optimizeExperience(String originalExperience, Set<String> jdKeywords, JobDescription jd) {
+        if (originalExperience == null || originalExperience.isEmpty()) {
+            return originalExperience;
+        }
+        
+        StringBuilder optimized = new StringBuilder(originalExperience);
+        
+        // Improve bullet points with action verbs
+        String improved = improveBulletPoints(originalExperience);
+        
+        // Add relevant keywords from JD if missing
+        Set<String> expKeywords = jdAnalyzerService.extractAllKeywords(originalExperience);
+        List<String> missingKeywords = jdKeywords.stream()
+            .filter(kw -> !expKeywords.contains(kw))
+            .limit(5)
+            .collect(Collectors.toList());
+        
+        if (!missingKeywords.isEmpty()) {
+            improved += "\n• Demonstrated expertise in " + String.join(", ", missingKeywords);
+        }
+        
+        return improved;
+    }
+
+    private String improveBulletPoints(String experience) {
+        String[] lines = experience.split("\n");
+        StringBuilder improved = new StringBuilder();
+        
+        String[] actionVerbs = {
+            "Developed", "Implemented", "Designed", "Led", "Managed", "Created",
+            "Optimized", "Improved", "Collaborated", "Architected", "Delivered"
+        };
+        
+        Random random = new Random();
+        
+        for (String line : lines) {
+            String trimmed = line.trim();
+            if (trimmed.isEmpty()) continue;
+            
+            // If line doesn't start with action verb, add one
+            if (!startsWithActionVerb(trimmed)) {
+                String verb = actionVerbs[random.nextInt(actionVerbs.length)];
+                trimmed = "• " + verb + " " + trimmed.toLowerCase();
+            }
+            
+            improved.append(trimmed).append("\n");
+        }
+        
+        return improved.toString();
+    }
+
+    private boolean startsWithActionVerb(String text) {
+        String[] actionVerbs = {
+            "developed", "implemented", "designed", "led", "managed", "created",
+            "built", "achieved", "increased", "reduced", "improved", "optimized"
+        };
+        
+        String lower = text.toLowerCase();
+        for (String verb : actionVerbs) {
+            if (lower.startsWith(verb) || lower.startsWith("• " + verb)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private Map<String, String> generateBulletPointImprovements(String experience) {
+        Map<String, String> improvements = new HashMap<>();
+        
+        if (experience == null) return improvements;
+        
+        String[] lines = experience.split("\n");
+        int count = 0;
+        
+        for (String line : lines) {
+            String trimmed = line.trim();
+            if (trimmed.isEmpty() || count >= 5) continue;
+            
+            String improved = improveSingleBullet(trimmed);
+            if (!improved.equals(trimmed)) {
+                improvements.put(trimmed, improved);
+                count++;
+            }
+        }
+        
+        return improvements;
+    }
+
+    private String improveSingleBullet(String bullet) {
+        // Remove bullet point if present
+        bullet = bullet.replaceFirst("^[•\\-*]\\s*", "");
+        
+        // If doesn't start with action verb, add one
+        if (!startsWithActionVerb(bullet)) {
+            bullet = "Developed " + bullet;
+        }
+        
+        // Add quantification if missing
+        if (!containsNumbers(bullet)) {
+            bullet += " resulting in measurable improvements";
+        }
+        
+        return "• " + bullet;
+    }
+
+    private boolean containsNumbers(String text) {
+        return text.matches(".*\\d+.*");
+    }
+
+    private Set<String> extractSkillsSet(String skillsText) {
+        if (skillsText == null || skillsText.isEmpty()) {
+            return new HashSet<>();
+        }
+        
+        return Arrays.stream(skillsText.split("[,;\\n]"))
+            .map(String::trim)
+            .map(String::toLowerCase)
+            .filter(s -> !s.isEmpty())
+            .collect(Collectors.toSet());
+    }
+}
