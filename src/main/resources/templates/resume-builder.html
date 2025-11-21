@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{layout :: layout(pageTitle='Edit Resume', activePage='resumes', content=~{::content})}">
+<body>
+<div th:fragment="content">
+    <div class="mb-8">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Edit Resume</h1>
+                <p class="text-gray-600 mt-1">Update your resume information</p>
+            </div>
+            <div class="flex space-x-3">
+                <button onclick="saveResume()" 
+                        class="px-6 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors flex items-center">
+                    <i data-lucide="save" class="w-5 h-5 mr-2"></i>
+                    Save Changes
+                </button>
+                <a th:href="@{/resumes}" 
+                   class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition-colors flex items-center">
+                    <i data-lucide="x" class="w-5 h-5 mr-2"></i>
+                    Cancel
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <form id="resumeForm" class="space-y-8">
+        <input type="hidden" id="resumeId" th:value="${resume.id}">
+        
+        <!-- Personal Information -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                <i data-lucide="user" class="w-6 h-6 mr-2 text-indigo-600"></i>
+                Personal Information
+            </h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
+                    <input type="text" id="name" th:value="${resume.name}" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                           placeholder="John Doe" required>
+                </div>
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
+                    <input type="email" id="email" th:value="${resume.email}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                           placeholder="john.doe@email.com" required>
+                </div>
+                <div>
+                    <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">Phone *</label>
+                    <input type="tel" id="phone" th:value="${resume.phone}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                           placeholder="+1-555-0123" required>
+                </div>
+                <div>
+                    <label for="linkedin" class="block text-sm font-medium text-gray-700 mb-2">LinkedIn</label>
+                    <input type="url" id="linkedin" th:value="${resume.linkedin}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                           placeholder="https://linkedin.com/in/johndoe">
+                </div>
+                <div>
+                    <label for="github" class="block text-sm font-medium text-gray-700 mb-2">GitHub</label>
+                    <input type="url" id="github" th:value="${resume.github}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                           placeholder="https://github.com/johndoe">
+                </div>
+                <div>
+                    <label for="portfolio" class="block text-sm font-medium text-gray-700 mb-2">Portfolio</label>
+                    <input type="url" id="portfolio" th:value="${resume.portfolio}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                           placeholder="https://johndoe.com">
+                </div>
+            </div>
+        </div>
+
+        <!-- Professional Summary -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                <i data-lucide="file-text" class="w-6 h-6 mr-2 text-indigo-600"></i>
+                Professional Summary
+            </h2>
+            <div>
+                <label for="summary" class="block text-sm font-medium text-gray-700 mb-2">Summary *</label>
+                <textarea id="summary" rows="4" th:text="${resume.summary}"
+                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                          placeholder="Write a brief summary of your professional background and key achievements..." required></textarea>
+                <p class="text-sm text-gray-500 mt-1">Tip: Keep it concise (2-4 sentences) and highlight your key strengths</p>
+            </div>
+        </div>
+
+        <!-- Skills -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                <i data-lucide="award" class="w-6 h-6 mr-2 text-indigo-600"></i>
+                Skills
+            </h2>
+            <div>
+                <label for="skills" class="block text-sm font-medium text-gray-700 mb-2">Skills *</label>
+                <textarea id="skills" rows="3" th:text="${resume.skills}"
+                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                          placeholder="Java, Spring Boot, React, Docker, AWS, MySQL..." required></textarea>
+                <p class="text-sm text-gray-500 mt-1">Separate skills with commas</p>
+            </div>
+        </div>
+
+        <!-- Education -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold text-gray-900 flex items-center">
+                    <i data-lucide="graduation-cap" class="w-6 h-6 mr-2 text-indigo-600"></i>
+                    Education
+                </h2>
+                <button type="button" onclick="addEducation()" 
+                        class="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg font-medium hover:bg-indigo-200 transition-colors flex items-center">
+                    <i data-lucide="plus" class="w-4 h-4 mr-1"></i>
+                    Add Education
+                </button>
+            </div>
+            <div id="educationList" class="space-y-4">
+                <!-- Education items will be added here dynamically -->
+            </div>
+        </div>
+
+        <!-- Experience -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold text-gray-900 flex items-center">
+                    <i data-lucide="briefcase" class="w-6 h-6 mr-2 text-indigo-600"></i>
+                    Work Experience
+                </h2>
+                <button type="button" onclick="addExperience()" 
+                        class="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg font-medium hover:bg-indigo-200 transition-colors flex items-center">
+                    <i data-lucide="plus" class="w-4 h-4 mr-1"></i>
+                    Add Experience
+                </button>
+            </div>
+            <div id="experienceList" class="space-y-4">
+                <!-- Experience items will be added here dynamically -->
+            </div>
+        </div>
+
+        <!-- Projects -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold text-gray-900 flex items-center">
+                    <i data-lucide="code" class="w-6 h-6 mr-2 text-indigo-600"></i>
+                    Projects
+                </h2>
+                <button type="button" onclick="addProject()" 
+                        class="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg font-medium hover:bg-indigo-200 transition-colors flex items-center">
+                    <i data-lucide="plus" class="w-4 h-4 mr-1"></i>
+                    Add Project
+                </button>
+            </div>
+            <div id="projectsList" class="space-y-4">
+                <!-- Project items will be added here dynamically -->
+            </div>
+        </div>
+
+        <!-- Certifications -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold text-gray-900 flex items-center">
+                    <i data-lucide="award" class="w-6 h-6 mr-2 text-indigo-600"></i>
+                    Certifications
+                </h2>
+                <button type="button" onclick="addCertification()" 
+                        class="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg font-medium hover:bg-indigo-200 transition-colors flex items-center">
+                    <i data-lucide="plus" class="w-4 h-4 mr-1"></i>
+                    Add Certification
+                </button>
+            </div>
+            <div id="certificationsList" class="space-y-4">
+                <!-- Certification items will be added here dynamically -->
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex justify-between items-center bg-white rounded-lg shadow-md p-6">
+            <a th:href="@{/resumes}" 
+               class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition-colors">
+                Cancel
+            </a>
+            <div class="flex space-x-3">
+                <button type="button" onclick="downloadPDF()" 
+                        class="px-6 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors flex items-center">
+                    <i data-lucide="download" class="w-5 h-5 mr-2"></i>
+                    Download PDF
+                </button>
+                <button type="submit" onclick="saveResume(); return false;"
+                        class="px-6 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors flex items-center">
+                    <i data-lucide="save" class="w-5 h-5 mr-2"></i>
+                    Save Changes
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script th:inline="javascript">
+    // Load resume data
+    const resumeData = /*[[${resume}]]*/ {};
+    
+    // Initialize form with resume data
+    document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons();
+        
+        // Load education
+        if (resumeData.education) {
+            try {
+                const education = JSON.parse(resumeData.education);
+                education.forEach(edu => addEducation(edu));
+            } catch (e) {
+                console.error('Error parsing education:', e);
+            }
+        }
+        
+        // Load experience
+        if (resumeData.experience) {
+            try {
+                const experience = JSON.parse(resumeData.experience);
+                experience.forEach(exp => addExperience(exp));
+            } catch (e) {
+                console.error('Error parsing experience:', e);
+            }
+        }
+        
+        // Load projects
+        if (resumeData.projects) {
+            try {
+                const projects = JSON.parse(resumeData.projects);
+                projects.forEach(proj => addProject(proj));
+            } catch (e) {
+                console.error('Error parsing projects:', e);
+            }
+        }
+        
+        // Load certifications
+        if (resumeData.certifications) {
+            try {
+                const certifications = JSON.parse(resumeData.certifications);
+                certifications.forEach(cert => addCertification(cert));
+            } catch (e) {
+                console.error('Error parsing certifications:', e);
+            }
+        }
+    });
+    
+    // Add Education
+    function addEducation(data = {}) {
+        const id = Date.now();
+        const html = `
+            <div class="border border-gray-200 rounded-lg p-4" id="education-${id}">
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="font-medium text-gray-900">Education Entry</h3>
+                    <button type="button" onclick="removeElement('education-${id}')" 
+                            class="text-red-600 hover:text-red-800">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Degree</label>
+                        <input type="text" class="education-degree w-full px-3 py-2 border border-gray-300 rounded-lg" 
+                               value="${data.degree || ''}" placeholder="Bachelor of Science">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Field of Study</label>
+                        <input type="text" class="education-field w-full px-3 py-2 border border-gray-300 rounded-lg" 
+                               value="${data.field || ''}" placeholder="Computer Science">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Institution</label>
+                        <input type="text" class="education-institution w-full px-3 py-2 border border-gray-300 rounded-lg" 
+                               value="${data.institution || ''}" placeholder="University Name">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Year</label>
+                        <input type="text" class="education-year w-full px-3 py-2 border border-gray-300 rounded-lg" 
+                               value="${data.year || ''}" placeholder="2020 - 2024">
+                    </div>
+                </div>
+            </div>
+        `;
+        document.getElementById('educationList').insertAdjacentHTML('beforeend', html);
+        lucide.createIcons();
+    }
+    
+    // Add Experience
+    function addExperience(data = {}) {
+        const id = Date.now();
+        const html = `
+            <div class="border border-gray-200 rounded-lg p-4" id="experience-${id}">
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="font-medium text-gray-900">Work Experience Entry</h3>
+                    <button type="button" onclick="removeElement('experience-${id}')" 
+                            class="text-red-600 hover:text-red-800">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Job Title</label>
+                        <input type="text" class="experience-title w-full px-3 py-2 border border-gray-300 rounded-lg" 
+                               value="${data.title || ''}" placeholder="Software Engineer">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Company</label>
+                        <input type="text" class="experience-company w-full px-3 py-2 border border-gray-300 rounded-lg" 
+                               value="${data.company || ''}" placeholder="Company Name">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Duration</label>
+                        <input type="text" class="experience-duration w-full px-3 py-2 border border-gray-300 rounded-lg" 
+                               value="${data.duration || ''}" placeholder="Jan 2020 - Present">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                        <input type="text" class="experience-location w-full px-3 py-2 border border-gray-300 rounded-lg" 
+                               value="${data.location || ''}" placeholder="San Francisco, CA">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <textarea class="experience-description w-full px-3 py-2 border border-gray-300 rounded-lg" rows="3" 
+                                  placeholder="Describe your responsibilities and achievements...">${data.description || ''}</textarea>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.getElementById('experienceList').insertAdjacentHTML('beforeend', html);
+        lucide.createIcons();
+    }
+    
+    // Add Project
+    function addProject(data = {}) {
+        const id = Date.now();
+        const html = `
+            <div class="border border-gray-200 rounded-lg p-4" id="project-${id}">
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="font-medium text-gray-900">Project Entry</h3>
+                    <button type="button" onclick="removeElement('project-${id}')" 
+                            class="text-red-600 hover:text-red-800">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Project Name</label>
+                        <input type="text" class="project-name w-full px-3 py-2 border border-gray-300 rounded-lg" 
+                               value="${data.name || ''}" placeholder="Project Name">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Technologies</label>
+                        <input type="text" class="project-technologies w-full px-3 py-2 border border-gray-300 rounded-lg" 
+                               value="${data.technologies || ''}" placeholder="Java, Spring Boot, React">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <textarea class="project-description w-full px-3 py-2 border border-gray-300 rounded-lg" rows="3" 
+                                  placeholder="Describe the project and your role...">${data.description || ''}</textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Project URL</label>
+                        <input type="url" class="project-url w-full px-3 py-2 border border-gray-300 rounded-lg" 
+                               value="${data.url || ''}" placeholder="https://github.com/username/project">
+                    </div>
+                </div>
+            </div>
+        `;
+        document.getElementById('projectsList').insertAdjacentHTML('beforeend', html);
+        lucide.createIcons();
+    }
+    
+    // Add Certification
+    function addCertification(data = {}) {
+        const id = Date.now();
+        const html = `
+            <div class="border border-gray-200 rounded-lg p-4" id="certification-${id}">
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="font-medium text-gray-900">Certification Entry</h3>
+                    <button type="button" onclick="removeElement('certification-${id}')" 
+                            class="text-red-600 hover:text-red-800">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Certification Name</label>
+                        <input type="text" class="certification-name w-full px-3 py-2 border border-gray-300 rounded-lg" 
+                               value="${data.name || ''}" placeholder="AWS Certified Developer">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Issuing Organization</label>
+                        <input type="text" class="certification-issuer w-full px-3 py-2 border border-gray-300 rounded-lg" 
+                               value="${data.issuer || ''}" placeholder="Amazon Web Services">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Date Obtained</label>
+                        <input type="text" class="certification-date w-full px-3 py-2 border border-gray-300 rounded-lg" 
+                               value="${data.date || ''}" placeholder="June 2023">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Credential ID</label>
+                        <input type="text" class="certification-credential w-full px-3 py-2 border border-gray-300 rounded-lg" 
+                               value="${data.credential || ''}" placeholder="ABC123XYZ">
+                    </div>
+                </div>
+            </div>
+        `;
+        document.getElementById('certificationsList').insertAdjacentHTML('beforeend', html);
+        lucide.createIcons();
+    }
+    
+    // Remove element
+    function removeElement(id) {
+        const element = document.getElementById(id);
+        if (element) {
+            element.remove();
+        }
+    }
+    
+    // Collect form data
+    function collectFormData() {
+        // Basic info
+        const formData = {
+            id: document.getElementById('resumeId').value,
+            name: document.getElementById('name').value,
+            email: document.getElementById('email').value,
+            phone: document.getElementById('phone').value,
+            linkedin: document.getElementById('linkedin').value,
+            github: document.getElementById('github').value,
+            portfolio: document.getElementById('portfolio').value,
+            summary: document.getElementById('summary').value,
+            skills: document.getElementById('skills').value
+        };
+        
+        // Collect education
+        const education = [];
+        document.querySelectorAll('#educationList > div').forEach(div => {
+            education.push({
+                degree: div.querySelector('.education-degree').value,
+                field: div.querySelector('.education-field').value,
+                institution: div.querySelector('.education-institution').value,
+                year: div.querySelector('.education-year').value
+            });
+        });
+        formData.education = JSON.stringify(education);
+        
+        // Collect experience
+        const experience = [];
+        document.querySelectorAll('#experienceList > div').forEach(div => {
+            experience.push({
+                title: div.querySelector('.experience-title').value,
+                company: div.querySelector('.experience-company').value,
+                duration: div.querySelector('.experience-duration').value,
+                location: div.querySelector('.experience-location').value,
+                description: div.querySelector('.experience-description').value
+            });
+        });
+        formData.experience = JSON.stringify(experience);
+        
+        // Collect projects
+        const projects = [];
+        document.querySelectorAll('#projectsList > div').forEach(div => {
+            projects.push({
+                name: div.querySelector('.project-name').value,
+                technologies: div.querySelector('.project-technologies').value,
+                description: div.querySelector('.project-description').value,
+                url: div.querySelector('.project-url').value
+            });
+        });
+        formData.projects = JSON.stringify(projects);
+        
+        // Collect certifications
+        const certifications = [];
+        document.querySelectorAll('#certificationsList > div').forEach(div => {
+            certifications.push({
+                name: div.querySelector('.certification-name').value,
+                issuer: div.querySelector('.certification-issuer').value,
+                date: div.querySelector('.certification-date').value,
+                credential: div.querySelector('.certification-credential').value
+            });
+        });
+        formData.certifications = JSON.stringify(certifications);
+        
+        return formData;
+    }
+    
+    // Save resume
+    async function saveResume() {
+        try {
+            const formData = collectFormData();
+            
+            const response = await fetch(`/api/resumes/${formData.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            });
+            
+            if (response.ok) {
+                alert('Resume saved successfully!');
+                window.location.href = '/resumes';
+            } else {
+                alert('Failed to save resume. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error saving resume:', error);
+            alert('An error occurred while saving the resume.');
+        }
+    }
+    
+    // Download PDF
+    async function downloadPDF() {
+        const resumeId = document.getElementById('resumeId').value;
+        window.open(`/api/resumes/${resumeId}/download?template=modern`, '_blank');
+    }
+</script>
+</body>
+</html>
