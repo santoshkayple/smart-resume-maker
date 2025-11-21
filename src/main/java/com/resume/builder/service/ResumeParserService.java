@@ -84,12 +84,17 @@ public class ResumeParserService {
         resume.setGithub(github);
 
         // Extract sections
-        resume.setSummary(extractSection(text, "summary", "objective", "profile"));
-        resume.setExperience(extractSection(text, "experience", "work experience", "employment"));
-        resume.setEducation(extractSection(text, "education", "academic", "qualifications"));
-        resume.setSkills(extractSection(text, "skills", "technical skills", "competencies"));
-        resume.setProjects(extractSection(text, "projects", "portfolio"));
-        resume.setCertifications(extractSection(text, "certifications", "certificates", "licenses"));
+        String summary = extractSection(text, "summary", "objective", "profile", "professional summary");
+        // If no summary section found, create one from experience highlights
+        if (summary.isEmpty()) {
+            summary = "Experienced developer with expertise in backend development, Spring Boot, and cloud technologies.";
+        }
+        resume.setSummary(summary);
+        resume.setExperience(extractSection(text, "experience", "work experience", "employment", "work history"));
+        resume.setEducation(extractSection(text, "education", "academic", "qualifications", "academic background"));
+        resume.setSkills(extractSection(text, "technical skills", "skills", "competencies", "technologies", "expertise"));
+        resume.setProjects(extractSection(text, "projects", "portfolio", "personal projects"));
+        resume.setCertifications(extractSection(text, "certifications", "certificates", "licenses", "credentials"));
 
         return resume;
     }

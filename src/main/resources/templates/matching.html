@@ -29,7 +29,7 @@
                     <option value="">Choose a job description...</option>
                     <option th:each="jd : ${jobDescriptions}" 
                             th:value="${jd.id}" 
-                            th:text="${jd.title}">Job Description</option>
+                            th:text="${jd.jobTitle}">Job Description</option>
                 </select>
             </div>
         </div>

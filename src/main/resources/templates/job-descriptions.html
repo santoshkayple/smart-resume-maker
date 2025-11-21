@@ -41,7 +41,7 @@
         <div th:each="jd : ${jobDescriptions}" class="bg-white rounded-lg shadow-md p-6">
             <div class="flex justify-between items-start mb-4">
                 <div class="flex-1">
-                    <h3 class="text-xl font-semibold text-gray-900" th:text="${jd.title}">Job Title</h3>
+                    <h3 class="text-xl font-semibold text-gray-900" th:text="${jd.jobTitle}">Job Title</h3>
                     <p class="text-sm text-gray-500" th:text="${#temporals.format(jd.createdAt, 'MMM dd, yyyy')}">Date</p>
                 </div>
                 <button th:onclick="'deleteJobDescription(' + ${jd.id} + ')'" 
