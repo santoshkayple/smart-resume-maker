@@ -39,6 +39,25 @@ public class ViewController {
         return "resume-upload";
     }
 
+    @GetMapping("/resume/new")
+    public String createNewResume(Model model) {
+        Resume resume = new Resume();
+        resume.setName("");
+        resume.setEmail("");
+        resume.setPhone("");
+        resume.setLinkedIn("");
+        resume.setGithub("");
+        resume.setSummary("");
+        resume.setExperience("[]");
+        resume.setEducation("[]");
+        resume.setSkills("");
+        resume.setProjects("[]");
+        resume.setCertifications("");
+        
+        Resume saved = resumeRepository.save(resume);
+        return "redirect:/resume/" + saved.getId();
+    }
+
     @GetMapping("/resume/{id}")
     public String viewResume(@PathVariable Long id, Model model) {
         return resumeRepository.findById(id)

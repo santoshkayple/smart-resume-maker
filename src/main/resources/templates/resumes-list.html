@@ -6,11 +6,18 @@
     <div class="mb-8">
         <div class="flex justify-between items-center">
             <h1 class="text-3xl font-bold text-gray-900">My Resumes</h1>
-            <a th:href="@{/upload}" 
-               class="px-6 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors flex items-center">
-                <i data-lucide="plus" class="w-5 h-5 mr-2"></i>
-                Create New Resume
-            </a>
+            <div class="flex space-x-3">
+                <a th:href="@{/resume/new}" 
+                   class="px-6 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors flex items-center">
+                    <i data-lucide="plus" class="w-5 h-5 mr-2"></i>
+                    Create from Scratch
+                </a>
+                <a th:href="@{/upload}" 
+                   class="px-6 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors flex items-center">
+                    <i data-lucide="upload" class="w-5 h-5 mr-2"></i>
+                    Upload Resume
+                </a>
+            </div>
         </div>
     </div>
 

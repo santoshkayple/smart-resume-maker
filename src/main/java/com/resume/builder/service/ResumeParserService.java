@@ -83,17 +83,23 @@ public class ResumeParserService {
         String github = extractGitHub(text);
         resume.setGithub(github);
 
-        // Extract sections
+        // Extract sections and convert to JSON format for frontend
         String summary = extractSection(text, "summary", "objective", "profile", "professional summary");
-        // If no summary section found, create one from experience highlights
         if (summary.isEmpty()) {
             summary = "Experienced developer with expertise in backend development, Spring Boot, and cloud technologies.";
         }
         resume.setSummary(summary);
-        resume.setExperience(extractSection(text, "experience", "work experience", "employment", "work history"));
-        resume.setEducation(extractSection(text, "education", "academic", "qualifications", "academic background"));
+        
+        String experienceText = extractSection(text, "experience", "work experience", "employment", "work history");
+        resume.setExperience(convertToJsonArray(experienceText, "experience"));
+        
+        String educationText = extractSection(text, "education", "academic", "qualifications", "academic background");
+        resume.setEducation(convertToJsonArray(educationText, "education"));
+        
+        String projectsText = extractSection(text, "projects", "portfolio", "personal projects");
+        resume.setProjects(convertToJsonArray(projectsText, "projects"));
+        
         resume.setSkills(extractSection(text, "technical skills", "skills", "competencies", "technologies", "expertise"));
-        resume.setProjects(extractSection(text, "projects", "portfolio", "personal projects"));
         resume.setCertifications(extractSection(text, "certifications", "certificates", "licenses", "credentials"));
 
         return resume;
@@ -138,18 +144,21 @@ public class ResumeParserService {
         String lowerText = text.toLowerCase();
         
         for (String sectionName : sectionNames) {
-            int startIndex = lowerText.indexOf(sectionName);
-            if (startIndex != -1) {
+            // Look for the section name at the start of a line (with possible whitespace)
+            Pattern pattern = Pattern.compile("(?m)^\\s*" + Pattern.quote(sectionName) + "\\s*$", Pattern.CASE_INSENSITIVE);
+            Matcher matcher = pattern.matcher(text);
+            
+            if (matcher.find()) {
+                int startIndex = matcher.end();
+                
                 // Find the end of this section (next section or end of text)
-                int endIndex = findNextSectionStart(lowerText, startIndex + sectionName.length());
+                int endIndex = findNextSectionStart(lowerText, startIndex);
                 
                 if (endIndex == -1) {
                     endIndex = text.length();
                 }
                 
                 String section = text.substring(startIndex, endIndex).trim();
-                // Remove the section header
-                section = section.replaceFirst("(?i)" + sectionName + "[:\\s]*", "").trim();
                 
                 return section;
             }
@@ -160,19 +169,181 @@ public class ResumeParserService {
 
     private int findNextSectionStart(String text, int fromIndex) {
         String[] commonSections = {
-            "summary", "objective", "profile", "experience", "work experience",
-            "education", "skills", "projects", "certifications", "awards", "languages"
+            "summary", "objective", "profile", "professional summary",
+            "experience", "work experience", "employment", "work history",
+            "education", "academic", "qualifications", "academic background",
+            "technical skills", "skills", "competencies", "technologies",
+            "projects", "portfolio", "personal projects",
+            "certifications", "certificates", "licenses", "credentials",
+            "awards", "achievements", "honors",
+            "languages", "language proficiency"
         };
         
         int minIndex = -1;
         
         for (String section : commonSections) {
-            int index = text.indexOf(section, fromIndex);
-            if (index != -1 && (minIndex == -1 || index < minIndex)) {
-                minIndex = index;
+            // Look for section headers at the start of a line
+            Pattern pattern = Pattern.compile("(?m)^\\s*" + Pattern.quote(section) + "\\s*$", Pattern.CASE_INSENSITIVE);
+            Matcher matcher = pattern.matcher(text);
+            
+            if (matcher.find(fromIndex)) {
+                int index = matcher.start();
+                if (index > fromIndex && (minIndex == -1 || index < minIndex)) {
+                    minIndex = index;
+                }
             }
         }
         
         return minIndex;
+    }
+    
+    private String convertToJsonArray(String text, String type) {
+        if (text == null || text.trim().isEmpty()) {
+            return "[]";
+        }
+        
+        StringBuilder json = new StringBuilder("[");
+        
+        if ("education".contains(type)) {
+            // Split by university names or degree patterns
+            String[] entries = text.split("(?=\\n[A-Z][a-zA-Z\\s]+University|(?m)^[A-Z][a-zA-Z\\s]+in\\s+)");
+            for (int i = 0; i < entries.length && i < 5; i++) {
+                String entry = entries[i].trim();
+                if (entry.length() > 10) {
+                    if (i > 0) json.append(",");
+                    json.append("{")
+                        .append("\"degree\":\"").append(escapeJson(extractLine(entry, 0))).append("\",")
+                        .append("\"field\":\"\",")
+                        .append("\"institution\":\"").append(escapeJson(extractInstitution(entry))).append("\",")
+                        .append("\"year\":\"").append(escapeJson(extractYear(entry))).append("\"")
+                        .append("}");
+                }
+            }
+        } else if ("experience".contains(type)) {
+            // Split by job titles or company patterns
+            String[] entries = text.split("(?=\\n[A-Za-z\\s]+(developer|engineer|manager|intern|analyst)[\\s\\n])|(?=\\n[A-Z])");
+            for (int i = 0; i < entries.length && i < 5; i++) {
+                String entry = entries[i].trim();
+                if (entry.length() > 20 && !entry.startsWith("•")) {
+                    if (i > 0) json.append(",");
+                    json.append("{")
+                        .append("\"title\":\"").append(escapeJson(extractJobTitle(entry))).append("\",")
+                        .append("\"company\":\"").append(escapeJson(extractCompany(entry))).append("\",")
+                        .append("\"duration\":\"").append(escapeJson(extractDuration(entry))).append("\",")
+                        .append("\"location\":\"\",")
+                        .append("\"description\":\"").append(escapeJson(extractDescription(entry))).append("\"")
+                        .append("}");
+                }
+            }
+        } else if ("projects".contains(type)) {
+            // Split by project names
+            String[] entries = text.split("(?=\\n[A-Z][a-zA-Z0-9\\s]+\\|)");
+            for (int i = 0; i < entries.length && i < 5; i++) {
+                String entry = entries[i].trim();
+                if (entry.length() > 10) {
+                    if (i > 0) json.append(",");
+                    json.append("{")
+                        .append("\"name\":\"").append(escapeJson(extractProjectName(entry))).append("\",")
+                        .append("\"technologies\":\"").append(escapeJson(extractTechnologies(entry))).append("\",")
+                        .append("\"description\":\"").append(escapeJson(extractDescription(entry))).append("\",")
+                        .append("\"url\":\"\"")
+                        .append("}");
+                }
+            }
+        }
+        
+        json.append("]");
+        return json.toString();
+    }
+    
+    private String escapeJson(String str) {
+        if (str == null) return "";
+        return str.replace("\\", "\\\\")
+                  .replace("\"", "\\\"")
+                  .replace("\n", " ")
+                  .replace("\r", "")
+                  .trim();
+    }
+    
+    private String extractLine(String text, int lineNumber) {
+        String[] lines = text.split("\n");
+        return lineNumber < lines.length ? lines[lineNumber].trim() : "";
+    }
+    
+    private String extractInstitution(String text) {
+        String[] lines = text.split("\n");
+        for (String line : lines) {
+            if (line.contains("University") || line.contains("College") || line.contains("Institute")) {
+                return line.trim();
+            }
+        }
+        return lines.length > 0 ? lines[0].trim() : "";
+    }
+    
+    private String extractYear(String text) {
+        Pattern pattern = Pattern.compile("(\\d{4}\\s*-\\s*\\d{4}|\\d{4}\\s*-\\s*Present|\\w{3}\\.?\\s*\\d{4}\\s*-\\s*\\w{3}\\.?\\s*\\d{4})");
+        Matcher matcher = pattern.matcher(text);
+        return matcher.find() ? matcher.group() : "";
+    }
+    
+    private String extractJobTitle(String text) {
+        String[] lines = text.split("\n");
+        for (String line : lines) {
+            line = line.trim();
+            if (line.matches(".*(?i)(developer|engineer|manager|intern|analyst|designer|consultant).*") && line.length() < 80) {
+                return line;
+            }
+        }
+        return lines.length > 0 ? lines[0].trim() : "";
+    }
+    
+    private String extractCompany(String text) {
+        String[] lines = text.split("\n");
+        for (int i = 0; i < Math.min(3, lines.length); i++) {
+            String line = lines[i].trim();
+            if (!line.matches(".*(?i)(developer|engineer|manager|intern).*") && line.length() > 5 && line.length() < 80) {
+                return line.replaceAll("\\d{4}.*", "").trim();
+            }
+        }
+        return "";
+    }
+    
+    private String extractDuration(String text) {
+        Pattern pattern = Pattern.compile("(\\w{3}\\.?\\s*\\d{4}\\s*-\\s*(\\w{3}\\.?\\s*\\d{4}|Present))");
+        Matcher matcher = pattern.matcher(text);
+        return matcher.find() ? matcher.group() : "";
+    }
+    
+    private String extractDescription(String text) {
+        StringBuilder description = new StringBuilder();
+        String[] lines = text.split("\n");
+        for (String line : lines) {
+            line = line.trim();
+            if (line.startsWith("•") || line.startsWith("-") || line.startsWith("*")) {
+                if (description.length() > 0) description.append(" ");
+                description.append(line);
+                if (description.length() > 500) break; // Limit length
+            }
+        }
+        return description.toString();
+    }
+    
+    private String extractProjectName(String text) {
+        String[] lines = text.split("\n");
+        if (lines.length > 0) {
+            return lines[0].split("\\|")[0].trim();
+        }
+        return "";
+    }
+    
+    private String extractTechnologies(String text) {
+        String[] lines = text.split("\n");
+        if (lines.length > 0 && lines[0].contains("|")) {
+            String[] parts = lines[0].split("\\|");
+            if (parts.length > 1) {
+                return parts[1].trim();
+            }
+        }
+        return "";
     }
 }

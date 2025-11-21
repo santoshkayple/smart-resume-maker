@@ -189,58 +189,13 @@
             </div>
         </div>
     </form>
-</div>
 
 <script th:inline="javascript">
-    // Load resume data
+    // ===== GLOBAL VARIABLES =====
     const resumeData = /*[[${resume}]]*/ {};
     
-    // Initialize form with resume data
-    document.addEventListener('DOMContentLoaded', function() {
-        lucide.createIcons();
-        
-        // Load education
-        if (resumeData.education) {
-            try {
-                const education = JSON.parse(resumeData.education);
-                education.forEach(edu => addEducation(edu));
-            } catch (e) {
-                console.error('Error parsing education:', e);
-            }
-        }
-        
-        // Load experience
-        if (resumeData.experience) {
-            try {
-                const experience = JSON.parse(resumeData.experience);
-                experience.forEach(exp => addExperience(exp));
-            } catch (e) {
-                console.error('Error parsing experience:', e);
-            }
-        }
-        
-        // Load projects
-        if (resumeData.projects) {
-            try {
-                const projects = JSON.parse(resumeData.projects);
-                projects.forEach(proj => addProject(proj));
-            } catch (e) {
-                console.error('Error parsing projects:', e);
-            }
-        }
-        
-        // Load certifications
-        if (resumeData.certifications) {
-            try {
-                const certifications = JSON.parse(resumeData.certifications);
-                certifications.forEach(cert => addCertification(cert));
-            } catch (e) {
-                console.error('Error parsing certifications:', e);
-            }
-        }
-    });
+    // ===== DYNAMIC SECTION FUNCTIONS (GLOBAL) =====
     
-    // Add Education
     function addEducation(data = {}) {
         const id = Date.now();
         const html = `
@@ -280,7 +235,6 @@
         lucide.createIcons();
     }
     
-    // Add Experience
     function addExperience(data = {}) {
         const id = Date.now();
         const html = `
@@ -325,7 +279,6 @@
         lucide.createIcons();
     }
     
-    // Add Project
     function addProject(data = {}) {
         const id = Date.now();
         const html = `
@@ -365,7 +318,6 @@
         lucide.createIcons();
     }
     
-    // Add Certification
     function addCertification(data = {}) {
         const id = Date.now();
         const html = `
@@ -405,7 +357,6 @@
         lucide.createIcons();
     }
     
-    // Remove element
     function removeElement(id) {
         const element = document.getElementById(id);
         if (element) {
@@ -413,9 +364,9 @@
         }
     }
     
-    // Collect form data
+    // ===== FORM DATA COLLECTION =====
+    
     function collectFormData() {
-        // Basic info
         const formData = {
             id: document.getElementById('resumeId').value,
             name: document.getElementById('name').value,
@@ -423,12 +374,10 @@
             phone: document.getElementById('phone').value,
             linkedin: document.getElementById('linkedin').value,
             github: document.getElementById('github').value,
-            portfolio: document.getElementById('portfolio').value,
             summary: document.getElementById('summary').value,
             skills: document.getElementById('skills').value
         };
         
-        // Collect education
         const education = [];
         document.querySelectorAll('#educationList > div').forEach(div => {
             education.push({
@@ -440,7 +389,6 @@
         });
         formData.education = JSON.stringify(education);
         
-        // Collect experience
         const experience = [];
         document.querySelectorAll('#experienceList > div').forEach(div => {
             experience.push({
@@ -453,7 +401,6 @@
         });
         formData.experience = JSON.stringify(experience);
         
-        // Collect projects
         const projects = [];
         document.querySelectorAll('#projectsList > div').forEach(div => {
             projects.push({
@@ -465,7 +412,6 @@
         });
         formData.projects = JSON.stringify(projects);
         
-        // Collect certifications
         const certifications = [];
         document.querySelectorAll('#certificationsList > div').forEach(div => {
             certifications.push({
@@ -480,7 +426,8 @@
         return formData;
     }
     
-    // Save resume
+    // ===== SAVE AND DOWNLOAD FUNCTIONS =====
+    
     async function saveResume() {
         try {
             const formData = collectFormData();
@@ -505,11 +452,52 @@
         }
     }
     
-    // Download PDF
     async function downloadPDF() {
         const resumeId = document.getElementById('resumeId').value;
         window.open(`/api/resumes/${resumeId}/download?template=modern`, '_blank');
     }
+    
+    // ===== INITIALIZATION =====
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons();
+        
+        if (resumeData.education) {
+            try {
+                const education = JSON.parse(resumeData.education);
+                education.forEach(edu => addEducation(edu));
+            } catch (e) {
+                console.error('Error parsing education:', e);
+            }
+        }
+        
+        if (resumeData.experience) {
+            try {
+                const experience = JSON.parse(resumeData.experience);
+                experience.forEach(exp => addExperience(exp));
+            } catch (e) {
+                console.error('Error parsing experience:', e);
+            }
+        }
+        
+        if (resumeData.projects) {
+            try {
+                const projects = JSON.parse(resumeData.projects);
+                projects.forEach(proj => addProject(proj));
+            } catch (e) {
+                console.error('Error parsing projects:', e);
+            }
+        }
+        
+        if (resumeData.certifications) {
+            try {
+                const certifications = JSON.parse(resumeData.certifications);
+                certifications.forEach(cert => addCertification(cert));
+            } catch (e) {
+                console.error('Error parsing certifications:', e);
+            }
+        }
+    });
 </script>
-</body>
-</html>
+</div>
+
